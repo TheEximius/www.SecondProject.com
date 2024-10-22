@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Cart</title>
+    <style>
+        body {
+            background-color: beige;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #ffcccb; /* Blush pink */
+            padding: 10px;
+            text-align: center;
+        }
+        .container {
+            padding: 20px;
+        }
+        .cart-item {
+            border: 1px solid #ffcccb; /* Blush pink outline */
+            margin: 10px 0;
+            padding: 10px;
+            background-color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .cart-item img {
+            width: 60px; /* Adjust as needed */
+            height: auto;
+            margin-right: 10px;
+        }
+        .summary {
+            border: 1px solid #ffcccb;
+            margin: 20px 0;
+            padding: 10px;
+            background-color: white;
+        }
+        .checkout-button {
+            background-color: #ffcccb; /* Blush pink */
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+        }
+        .checkout-button:hover {
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Your Cart</h1>
+</header>
+
+<div class="container" id="cart-items">
+    <!-- Cart items will be populated here by JavaScript -->
+</div>
+
+<div class="summary" id="summary">
+    <h2>Order Summary</h2>
+    <div id="summary-items"></div>
+    <p><strong>Total Price: $<span id="total-price">0.00</span></strong></p>
+</div>
+
+<button class="checkout-button" id="checkout-button">Checkout</button>
+
+<script>
+    function displayCartItems() {
+        const cart = JSON.parse(localStorage.getItem('cart')) || [];
+        const cartItemsContainer = document.getElementById('cart-items');
+        let totalPrice = 0;
+
+        if (cart.length === 0) {
+            cartItemsContainer.innerHTML = '<p>Your cart is empty.</p>';
+            return;
+        }
+
+        cart.forEach((item, index) => {
+            const quantity = item.quantity || 1; // Default quantity to 1
+            const subtotal = item.price * quantity;
+
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'cart-item';
+            itemDiv.innerHTML = `
+                <img src="${item.image}" alt="${item.name}">
+                <div>
+                    <h2>${item.name}</h2>
+                    <p>Price: $${item.price.toFixed(2)}</p>
+                    <label for="quantity-${index}">Quantity:</label>
+                    <input type="number" id="quantity-${index}" value="${quantity}" min="1" onchange="updateSubtotal(${index}, ${item.price})">
+                    <p>Subtotal: $<span id="subtotal-${index}">${subtotal.toFixed(2)}</span></p>
+                </div>
+            `;
+            cartItemsContainer.appendChild(itemDiv);
+
+            totalPrice += subtotal; // Calculate the total price
+        });
+
+        document.getElementById('total-price').innerText = totalPrice.toFixed(2);
+        updateSummary(cart);
+    }
+
+    function updateSubtotal(index, price) {
+        const quantity = document.getElementById(`quantity-${index}`).value;
+        const subtotal = price * quantity;
+        document.getElementById(`subtotal-${index}`).innerText = subtotal.toFixed(2);
+        updateTotalPrice();
+    }
+
+    function updateTotalPrice() {
+        const cart = JSON.parse(localStorage.getItem('cart')) || [];
+        let totalPrice = 0;
+
+        cart.forEach((item, index) => {
+            const quantity = document.getElementById(`quantity-${index}`).value;
+            totalPrice += item.price * quantity;
+        });
+
+        document.getElementById('total-price').innerText = totalPrice.toFixed(2);
+        updateSummary(cart);
+    }
+
+    function updateSummary(cart) {
+        const summaryContainer = document.getElementById('summary-items');
+        summaryContainer.innerHTML = '';
+
+        cart.forEach((item, index) => {
+            const quantity = document.getElementById(`quantity-${index}`).value;
+            const subtotal = item.price * quantity;
+            summaryContainer.innerHTML += `
+                <p>${item.name} - Quantity: ${quantity} - Subtotal: $${subtotal.toFixed(2)}<br>
+                Image: <a href="${item.image}">${item.image}</a></p>
+            `;
+        });
+    }
+
+    document.getElementById('checkout-button').onclick = function() {
+        const cart = JSON.parse(localStorage.getItem('cart')) || [];
+        let emailBody = 'Order Summary:\n\n';
+
+        cart.forEach((item, index) => {
+            const quantity = document.getElementById(`quantity-${index}`).value;
+            const subtotal = item.price * quantity;
+            emailBody += `${item.name} - Quantity: ${quantity} - Price: $${item.price.toFixed(2)} - Subtotal: $${subtotal.toFixed(2)}\n`;
+            emailBody += `Image: ${item.image}\n`; // Include image URL in the email body
+        });
+
+        const totalPrice = document.getElementById('total-price').innerText;
+        emailBody += `\nTotal Price: $${totalPrice}`;
+
+        window.location.href = `mailto:theeximiusdigital@gmail.com?subject=Order Summary&body=${encodeURIComponent(emailBody)}`;
+    }
+
+    // Display cart items when the page loads
+    displayCartItems();
+</script>
+
+</body>
+</html>
