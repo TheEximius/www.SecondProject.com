@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clothing Store</title>
+    <style>
+        body {
+            background-color: beige;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #ffcccb; /* Blush pink */
+            padding: 10px;
+            text-align: center;
+        }
+        .cart {
+            float: right;
+            cursor: pointer;
+        }
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 20px;
+        }
+        .product {
+            border: 2px solid #ffcccb; /* Blush pink outline */
+            margin: 10px;
+            width: 200px;
+            text-align: center;
+            background-color: white;
+            position: relative;
+        }
+        .product img {
+            width: 100%;
+            height: auto;
+            aspect-ratio: 1 / 1; /* Square shape */
+            cursor: pointer;
+        }
+        .product button {
+            background-color: #ffcccb; /* Blush pink */
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            margin: 10px 0;
+        }
+        .product button:hover {
+            opacity: 0.8;
+        }
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            border: 2px solid #ffcccb;
+            padding: 20px;
+            z-index: 1000;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            max-width: 80%;
+            overflow: hidden;
+        }
+        .popup img {
+            width: 100%;
+            height: auto;
+        }
+        .thumbnail-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        .thumbnail {
+            width: 50px;
+            height: 50px;
+            margin: 0 5px;
+            cursor: pointer;
+            opacity: 0.7;
+        }
+        .thumbnail:hover {
+            opacity: 1;
+        }
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 900;
+        }
+        @media (max-width: 600px) {
+            .product {
+                width: 100%;
+                margin: 5px 0;
+            }
+            .thumbnail {
+                width: 40px;
+                height: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Clothing Store</h1>
+    <div class="cart" onclick="goToCart()">
+        🛒 Cart: <span id="cart-count">0</span>
+    </div>
+</header>
+
+<div class="container">
+    <div class="product" onclick="showPopup('product1', 'product1.jpg', ['product1_3.jpg', 'product1_1.jpg', 'product1_2.jpg'])">
+        <img src="product1.jpg" alt="Product 1">
+        <h2>Product 1</h2>
+        <p>$29.99</p>
+        <button onclick="addToCart('Product 1', 29.99, 'product1.jpg')">Add to Cart</button>
+    </div>
+    <div class="product" onclick="showPopup('product2', 'product2.jpg', ['product2.jpg', 'product2_1.jpg', 'product2_2.jpg'])">
+        <img src="product2.jpg" alt="Product 2">
+        <h2>Product 2</h2>
+        <p>$39.99</p>
+        <button onclick="addToCart('Product 2', 39.99, 'product2.jpg')">Add to Cart</button>
+    </div>
+    <div class="product" onclick="showPopup('product3', 'product3.jpg', ['product3.jpg', 'product3_1.jpg', 'product3_2.jpg'])">
+        <img src="product3.jpg" alt="Product 3">
+        <h2>Product 3</h2>
+        <p>$49.99</p>
+        <button onclick="addToCart('Product 3', 49.99, 'product3.jpg')">Add to Cart</button>
+    </div>
+    <div class="product" onclick="showPopup('product4', 'product4.jpg', ['product4.jpg', 'product4_1.jpg', 'product4_2.jpg'])">
+        <img src="product4.jpg" alt="Product 4">
+        <h2>Product 4</h2>
+        <p>$59.99</p>
+        <button onclick="addToCart('Product 4', 59.99, 'product4.jpg')">Add to Cart</button>
+    </div>
+</div>
+
+<div class="overlay" id="overlay" onclick="hidePopup()"></div>
+
+<div class="popup" id="popup">
+    <img id="popup-img" src="" alt="">
+    <div class="thumbnail-container" id="thumbnail-container"></div>
+    <button onclick="hidePopup()">Close</button>
+</div>
+
+<script>
+    let cart = [];
+
+    function addToCart(name, price, image) {
+        cart.push({ name, price, image });
+        document.getElementById('cart-count').innerText = cart.length;
+        alert(name + " added to cart!");
+    }
+
+    function goToCart() {
+        localStorage.setItem('cart', JSON.stringify(cart));
+        window.location.href = 'cart.html';
+    }
+
+    function showPopup(name, mainImage, thumbnails) {
+        const popup = document.getElementById('popup');
+        const overlay = document.getElementById('overlay');
+        const popupImg = document.getElementById('popup-img');
+        const thumbnailContainer = document.getElementById('thumbnail-container');
+
+        popupImg.src = mainImage;
+        thumbnailContainer.innerHTML = '';
+        
+        thumbnails.forEach(thumbnail => {
+            const img = document.createElement('img');
+            img.src = thumbnail;
+            img.className = 'thumbnail';
+            img.onclick = function() {
+                popupImg.src = thumbnail; // Change main image when thumbnail is clicked
+            };
+            thumbnailContainer.appendChild(img);
+        });
+
+        popup.style.display = 'block';
+        overlay.style.display = 'block';
+    }
+
+    function hidePopup() {
+        const popup = document.getElementById('popup');
+        const overlay = document.getElementById('overlay');
+        popup.style.display = 'none';
+        overlay.style.display = 'none';
+    }
+</script>
+
+</body>
+</html>
